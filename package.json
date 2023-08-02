@@ -7,7 +7,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.0.0",
+  "version": "0.0.0-semantically-released",
   "description": "Create and verify cryptographically secure Time-based One-time Passwords (TOTP) using the HMAC-based One-time Password (HOTP) algorithm.",
   "main": "index.js",
   "scripts": {
