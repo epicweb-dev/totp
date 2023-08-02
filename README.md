@@ -11,6 +11,20 @@
 
 <hr />
 
+<div align="center">
+  <a
+    alt="Epic Web logo"
+    href="https://www.epicweb.dev"
+  >
+    <img
+      width="300px"
+      src="https://github-production-user-asset-6210df.s3.amazonaws.com/1500684/257881576-fd66040b-679f-4f25-b0d0-ab886a14909a.png"
+    />
+  </a>
+</div>
+
+<hr />
+
 <!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
 [![GPL 3.0 License][license-badge]][license]
