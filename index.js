@@ -2,12 +2,9 @@
  * This was copy/paste/modified/tested from https://npm.im/notp (MIT)
  */
 import * as crypto from 'crypto'
-/**
- * @typedef {import('buffer').Buffer} Buffer
- */
 
 /**
- * @type {{ encode: (data: string | Buffer) => string, decode: (data: string) => Buffer }}
+ * @type {{ encode: (data: string | import('buffer').Buffer) => string, decode: (data: string) => import('buffer').Buffer }}
  */
 import * as base32 from 'thirty-two'
 
