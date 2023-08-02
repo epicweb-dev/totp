@@ -45,13 +45,11 @@ jobs:
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
         with:
-          working-directory: ./packages/workshop-app
           useLockFile: false
 
       - name: 🚀 Release
         uses: cycjimmy/semantic-release-action@v3.2.0
         with:
-          working_directory: ./packages/workshop-app
           semantic_version: 17
           branches: |
             [
