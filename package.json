@@ -1,0 +1,42 @@
+{
+  "name": "@epic-web/totp",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "1.0.0",
+  "description": "Create and verify cryptographically secure Time-based One-time Passwords (TOTP) using the HMAC-based One-time Password (HOTP) algorithm.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test --test-reporter spec --experimental-test-coverage *.test.js",
+    "test:watch": "node --test --test-reporter spec --watch *.test.js"
+  },
+  "keywords": [],
+  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "thirty-two": "^1.0.2"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "prettier": {
+    "semi": false,
+    "useTabs": true,
+    "singleQuote": true,
+    "proseWrap": "always",
+    "overrides": [
+      {
+        "files": [
+          "**/*.json"
+        ],
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
+  }
+}
