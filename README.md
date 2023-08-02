@@ -193,8 +193,8 @@ will show you all this stuff, but just in case, here's that:
  * @param {number} [options.period] The number of seconds for the OTP to be valid.
  * @param {number} [options.digits] The length of the OTP.
  * @param {string} [options.algorithm] The algorithm to use.
- * @param [options.window] The number of OTPs to check before and after the
- * current OTP. Defaults to 1.
+ * @param {number} [options.window] The number of OTPs to check before and after
+ * the current OTP. Defaults to 1.
  *
  * @returns {{delta: number}|null} an object with "delta" which is the delta
  * between the current OTP and the OTP that was verified, or null if the OTP is
