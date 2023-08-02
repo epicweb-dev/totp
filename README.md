@@ -1,5 +1,5 @@
 <div>
-  <h1 align="center"><a href="https://npm.im/@epic-web/totp">🕰 TOTP</a></h1>
+  <h1 align="center"><a href="https://npm.im/@epic-web/totp">🕰 @epic-web/totp</a></h1>
   <strong>
     Support Two Factor Authentication (2FA) in your application with ease.
   </strong>
@@ -9,7 +9,9 @@
   </p>
 </div>
 
-<hr />
+```
+npm install @epic-web/totp
+```
 
 <div align="center">
   <a
