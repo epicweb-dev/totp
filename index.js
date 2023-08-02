@@ -2,6 +2,13 @@
  * This was copy/paste/modified/tested from https://npm.im/notp (MIT)
  */
 import * as crypto from 'crypto'
+/**
+ * @typedef {import('buffer').Buffer} Buffer
+ */
+
+/**
+ * @type {{ encode: (data: string | Buffer) => string, decode: (data: string) => Buffer }}
+ */
 import * as base32 from 'thirty-two'
 
 // SHA1 is not secure, but in the context of TOTPs, it's unrealistic to expect

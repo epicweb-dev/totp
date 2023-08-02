@@ -4,6 +4,10 @@
   "exports": {
     ".": "./index.js"
   },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -14,7 +18,18 @@
     "test": "node --test --test-reporter spec --experimental-test-coverage *.test.js",
     "test:watch": "node --test --test-reporter spec --watch *.test.js"
   },
-  "keywords": [],
+  "keywords": [
+    "totp",
+    "2fa",
+    "two-factor",
+    "authentication",
+    "google authenticator",
+    "1password",
+    "authy",
+    "otp",
+    "time-based one time password",
+    "one time password"
+  ],
   "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com/)",
   "license": "MIT",
   "dependencies": {
@@ -38,5 +53,8 @@
         }
       }
     ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.5"
   }
 }

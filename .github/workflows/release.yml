@@ -47,6 +47,12 @@ jobs:
         with:
           useLockFile: false
 
+      - name: 💪 Generate Types
+        run:
+          npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs
+          --checkJs --downlevelIteration --moduleResolution nodenext --target
+          es2022 --outDir . index.js
+
       - name: 🚀 Release
         uses: cycjimmy/semantic-release-action@v3.2.0
         with:
