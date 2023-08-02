@@ -1,10 +1,11 @@
-name: validate
+name: release
+on: [push, pull_request]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint:
+  test:
     name: 🧪 Test
     runs-on: ubuntu-latest
     steps:

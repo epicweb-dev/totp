@@ -60,7 +60,7 @@ Here's the typical process for generating a 2FA auth URI (which the user can add
 to their authenticator app).
 
 ```js
-import { generateTOTP, getTOTPAuthUri, verifyTOTP } from "@epic-web/totp"
+import { generateTOTP, getTOTPAuthUri, verifyTOTP } from '@epic-web/totp'
 
 // Here's how to use the default config. All the options are returned:
 const { secret, period, digits, algorithm } = generateTOTP()
@@ -70,7 +70,7 @@ const uri = getTOTPAuthUri({
 	algorithm,
 	secret,
 	accountName: user.email,
-	issuer: "Your App Name",
+	issuer: 'Your App Name',
 })
 // check docs below for customization options.
 
@@ -96,10 +96,10 @@ Here's the typical process for a one-time verification of a user's email/phone
 number/etc.:
 
 ```js
-import { generateTOTP, verifyTOTP } from "@epic-web/totp"
+import { generateTOTP, verifyTOTP } from '@epic-web/totp'
 
 const { otp, secret, digits, period, algorithm } = generateTOTP({
-	algorithm: "SHA256", // more secure algorithm should be used with longer-lived OTPs
+	algorithm: 'SHA256', // more secure algorithm should be used with longer-lived OTPs
 	period: 10 * 60, // 10 minutes
 })
 
@@ -211,8 +211,8 @@ will show you all this stuff, but just in case, here's that:
 MIT
 
 <!-- prettier-ignore-start -->
-[build-badge]: https://img.shields.io/github/actions/workflow/status/epicweb-dev/totp/validate.yml?branch=main&logo=github&style=flat-square
-[build]: https://github.com/epicweb-dev/totp/actions?query=workflow%3Avalidate
+[build-badge]: https://img.shields.io/github/actions/workflow/status/epicweb-dev/totp/release.yml?branch=main&logo=github&style=flat-square
+[build]: https://github.com/epicweb-dev/totp/actions?query=workflow%3Arelease
 [license-badge]: https://img.shields.io/badge/license-GPL%203.0%20License-blue.svg?style=flat-square
 [license]: https://github.com/epicweb-dev/totp/blob/main/LICENSE
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
