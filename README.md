@@ -80,7 +80,7 @@ import { generateTOTP, getTOTPAuthUri, verifyTOTP } from '@epic-web/totp'
 
 // Here's how to use the default config. All the options are returned:
 const { secret, period, digits, algorithm } = generateTOTP()
-const uri = getTOTPAuthUri({
+const otpUri = getTOTPAuthUri({
 	period,
 	digits,
 	algorithm,
