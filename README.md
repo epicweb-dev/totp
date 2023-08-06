@@ -29,7 +29,7 @@ npm install @epic-web/totp
 
 <!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
-[![GPL 3.0 License][license-badge]][license]
+[![MIT License][license-badge]][license]
 [![Code of Conduct][coc-badge]][coc]
 <!-- prettier-ignore-end -->
 
@@ -229,7 +229,7 @@ MIT
 <!-- prettier-ignore-start -->
 [build-badge]: https://img.shields.io/github/actions/workflow/status/epicweb-dev/totp/release.yml?branch=main&logo=github&style=flat-square
 [build]: https://github.com/epicweb-dev/totp/actions?query=workflow%3Arelease
-[license-badge]: https://img.shields.io/badge/license-GPL%203.0%20License-blue.svg?style=flat-square
+[license-badge]: https://img.shields.io/badge/license-MIT%20License-blue.svg?style=flat-square
 [license]: https://github.com/epicweb-dev/totp/blob/main/LICENSE
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
 [coc]: https://kentcdodds.com/conduct
