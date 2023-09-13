@@ -17,7 +17,7 @@ test('options can be customized', () => {
 		algorithm: 'SHA256',
 		period: 60,
 		digits: 8,
-		secret: base32.encode(Math.random().toString(16).slice(2)),
+		secret: base32.encode(Math.random().toString(16).slice(2)).toString(),
 	}
 	const { otp, ...config } = generateTOTP(options)
 	assert.deepStrictEqual(config, options)
@@ -85,6 +85,16 @@ test('Generating and verifying also works with the algorithm name alias', () => 
 
 	const result = verifyTOTP({ otp, secret, algorithm: 'sha1' })
 	assert.notStrictEqual(result, null)
+})
+
+test('Charset defaults to numbers', () => {
+	const { otp } = generateTOTP()
+	assert.match(otp, /^[0-9]+$/)
+})
+
+test('Charset can be customized', () => {
+	const { otp } = generateTOTP({ charSet: 'abcdef' })
+	assert.match(otp, /^[abcdef]+$/)
 })
 
 test('OTP Auth URI can be generated', () => {

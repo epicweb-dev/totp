@@ -174,6 +174,7 @@ will show you all this stuff, but just in case, here's that:
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
  * secret: base32.encode(crypto.randomBytes(10)).toString().
+ * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string}}
  * The OTP, secret, and config options used to generate the OTP.
  */
@@ -193,6 +194,7 @@ will show you all this stuff, but just in case, here's that:
  * @param {number} [options.period] The number of seconds for the OTP to be valid.
  * @param {number} [options.digits] The length of the OTP.
  * @param {string} [options.algorithm] The algorithm to use.
+ * @param {string} [options.charSet] The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
  *

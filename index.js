@@ -14,6 +14,7 @@ import * as base32 from 'thirty-two'
 // is longer lived, you can definitely use a more secure algorithm like SHA256.
 // Learn more: https://www.rfc-editor.org/rfc/rfc4226#page-25 (B.1. SHA-1 Status)
 const DEFAULT_ALGORITHM = 'SHA1'
+const DEFAULT_CHAR_SET = '0123456789'
 const DEFAULT_DIGITS = 6
 const DEFAULT_WINDOW = 1
 const DEFAULT_PERIOD = 30
@@ -30,24 +31,36 @@ const DEFAULT_PERIOD = 30
  * HOTP. Defaults to 6.
  * @param {string} [options.algorithm='SHA1'] - The algorithm to use for the
  * HOTP. Defaults to 'SHA1'.
+ * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {string} The generated HOTP.
  */
 function generateHOTP(
 	secret,
-	{ counter = 0, digits = DEFAULT_DIGITS, algorithm = DEFAULT_ALGORITHM } = {}
+	{
+		counter = 0,
+		digits = DEFAULT_DIGITS,
+		algorithm = DEFAULT_ALGORITHM,
+		charSet = DEFAULT_CHAR_SET,
+	} = {}
 ) {
 	const byteCounter = Buffer.from(intToBytes(counter))
 	const hmac = crypto.createHmac(algorithm, secret)
 	const digest = hmac.update(byteCounter).digest('hex')
 	const hashBytes = hexToBytes(digest)
 	const offset = hashBytes[19] & 0xf
-	let hotp =
-		(((hashBytes[offset] & 0x7f) << 24) |
-			((hashBytes[offset + 1] & 0xff) << 16) |
-			((hashBytes[offset + 2] & 0xff) << 8) |
-			(hashBytes[offset + 3] & 0xff)) +
-		''
-	return hotp.slice(-digits)
+	let hotpVal =
+		((hashBytes[offset] & 0x7f) << 24) |
+		((hashBytes[offset + 1] & 0xff) << 16) |
+		((hashBytes[offset + 2] & 0xff) << 8) |
+		(hashBytes[offset + 3] & 0xff)
+
+	let hotp = ''
+	for (let i = 0; i < digits; i++) {
+		hotp += charSet.charAt(hotpVal % charSet.length)
+		hotpVal = Math.floor(hotpVal / charSet.length)
+	}
+
+	return hotp
 }
 
 /**
@@ -63,6 +76,7 @@ function generateHOTP(
  * HOTP. Defaults to 6.
  * @param {string} [options.algorithm='SHA1'] - The algorithm to use for the
  * HOTP. Defaults to 'SHA1'.
+ * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window=1] - The number of counter values to check
  * before and after the current counter value. Defaults to 1.
  * @returns {{delta: number}|null} An object with the `delta` property
@@ -76,11 +90,14 @@ function verifyHOTP(
 		counter = 0,
 		digits = DEFAULT_DIGITS,
 		algorithm = DEFAULT_ALGORITHM,
+		charSet = DEFAULT_CHAR_SET,
 		window = DEFAULT_WINDOW,
 	} = {}
 ) {
 	for (let i = counter - window; i <= counter + window; ++i) {
-		if (generateHOTP(secret, { counter: i, digits, algorithm }) === otp) {
+		if (
+			generateHOTP(secret, { counter: i, digits, algorithm, charSet }) === otp
+		) {
 			return { delta: i - counter }
 		}
 	}
@@ -98,10 +115,11 @@ function verifyHOTP(
  * @param {number} [options.digits=6] The length of the OTP. Defaults to 6.
  * @param {string} [options.algorithm='SHA1'] The algorithm to use. Defaults to
  * SHA1.
+ * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
  * secret: base32.encode(crypto.randomBytes(10)).toString().
- * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string}}
+ * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}}
  * The OTP, secret, and config options used to generate the OTP.
  */
 export function generateTOTP({
@@ -109,14 +127,16 @@ export function generateTOTP({
 	digits = DEFAULT_DIGITS,
 	algorithm = DEFAULT_ALGORITHM,
 	secret = base32.encode(crypto.randomBytes(10)).toString(),
+	charSet = DEFAULT_CHAR_SET,
 } = {}) {
 	const otp = generateHOTP(base32.decode(secret), {
 		counter: getCounter(period),
 		digits,
 		algorithm,
+		charSet,
 	})
 
-	return { otp, secret, period, digits, algorithm }
+	return { otp, secret, period, digits, algorithm, charSet }
 }
 
 /**
