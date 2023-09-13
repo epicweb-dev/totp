@@ -152,6 +152,59 @@ if (isValid) {
 }
 ```
 
+## Customizable Character Set for Increased Security
+
+### Why Charset Matters
+
+When it comes to security, every bit of entropy counts. Entropy measures the
+unpredictability and in turn the security of your OTPs. The traditional TOTP
+setup often employs a 6-digit numerical code, providing a million (10^6)
+combinations. This is the default behaviour for this implementation. While that
+is robust, there's room for improvement.
+
+By introducing a customizable character set feature, you can exponentially
+increase the entropy of the OTPs, making them much more secure against
+brute-force attacks. For example, if you extend your character set to include 26
+uppercase letters and 10 digits, a 6-character OTP would have 36^6 = 2.1 billion
+combinations. When paired with rate-limiting mechanisms, this configuration
+becomes practically impervious to brute-force attacks.
+
+### Potential for Main Form of Authentication
+
+With this added complexity, TOTPs can, in theory, be used as the primary form of
+authentication, rather than just a second factor. This is particularly useful
+for applications requiring heightened security.
+
+### Usage with Custom Character Set
+
+In addition to the existing options, you can specify a charSet in both
+`generateTOTP` and `verifyTOTP`.
+
+Here's how you can generate an OTP with a custom character set:
+
+```js
+import { generateTOTP, verifyTOTP } from '@epic-web/totp'
+
+const { otp, secret, period, digits, algorithm, charSet } = generateTOTP({
+	charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', // custom character set
+})
+
+// Remember to save the charSet to your database as well.
+
+// To verify
+const isValid = verifyTOTP({
+	otp,
+	secret,
+	period,
+	digits,
+	algorithm,
+	charSet,
+})
+```
+
+Just as an aside, you probably want to exclude the letter O and the number 0 to
+make it easier for users to enter the code.
+
 ## API
 
 This library is built with `jsdoc`, so hopefully your editor supports that and
@@ -174,7 +227,8 @@ will show you all this stuff, but just in case, here's that:
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
  * secret: base32.encode(crypto.randomBytes(10)).toString().
- * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string}}
+ * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
+ * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}}
  * The OTP, secret, and config options used to generate the OTP.
  */
 ```
@@ -193,6 +247,7 @@ will show you all this stuff, but just in case, here's that:
  * @param {number} [options.period] The number of seconds for the OTP to be valid.
  * @param {number} [options.digits] The length of the OTP.
  * @param {string} [options.algorithm] The algorithm to use.
+ * @param {string} [options.charSet] The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
  *
