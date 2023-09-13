@@ -188,6 +188,7 @@ export function getTOTPAuthUri({
  * @param {number} [options.period] The number of seconds for the OTP to be valid.
  * @param {number} [options.digits] The length of the OTP.
  * @param {string} [options.algorithm] The algorithm to use.
+ * @param {string} [options.charSet] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
  *
@@ -201,6 +202,7 @@ export function verifyTOTP({
 	period,
 	digits,
 	algorithm,
+	charSet,
 	window = DEFAULT_WINDOW,
 }) {
 	return verifyHOTP(otp, base32.decode(secret), {
@@ -208,6 +210,7 @@ export function verifyTOTP({
 		digits,
 		window,
 		algorithm,
+		charSet,
 	})
 }
 

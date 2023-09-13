@@ -1,6 +1,6 @@
 import assert from 'node:assert'
-import { test, afterEach } from 'node:test'
-import * as base32 from 'thirty-two'
+import { test } from 'node:test'
+import base32 from 'thirty-two'
 import { generateTOTP, getTOTPAuthUri, verifyTOTP } from './index.js'
 
 test('OTP can be generated and verified', () => {
@@ -18,6 +18,7 @@ test('options can be customized', () => {
 		period: 60,
 		digits: 8,
 		secret: base32.encode(Math.random().toString(16).slice(2)).toString(),
+		charSet: 'abcdef',
 	}
 	const { otp, ...config } = generateTOTP(options)
 	assert.deepStrictEqual(config, options)
