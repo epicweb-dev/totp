@@ -165,7 +165,7 @@ is robust, there's room for improvement.
 By introducing a customizable character set feature, you can exponentially
 increase the entropy of the OTPs, making them much more secure against
 brute-force attacks. For example, if you extend your character set to include 26
-lowercase letters and 10 digits, a 6-character OTP would have 36^6 = 2.1 billion
+uppercase letters and 10 digits, a 6-character OTP would have 36^6 = 2.1 billion
 combinations. When paired with rate-limiting mechanisms, this configuration
 becomes practically impervious to brute-force attacks.
 
@@ -189,7 +189,7 @@ const { otp, secret, period, digits, algorithm, charSet } = generateTOTP({
 	charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', // custom character set
 })
 
-// Remember to save the charSet to the database as well.
+// Remember to save the charSet to your database as well.
 
 // To verify
 const isValid = verifyTOTP({
