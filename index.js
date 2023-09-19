@@ -56,7 +56,7 @@ function generateHOTP(
 
 	let hotp = ''
 	for (let i = 0; i < digits; i++) {
-		hotp += charSet.charAt(hotpVal % charSet.length)
+		hotp = charSet.charAt(hotpVal % charSet.length) + hotp
 		hotpVal = Math.floor(hotpVal / charSet.length)
 	}
 
