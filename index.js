@@ -1,7 +1,7 @@
 /**
  * This was copy/paste/modified/tested from https://npm.im/notp (MIT)
  */
-import * as crypto from 'crypto'
+import * as crypto from 'node:crypto'
 
 /**
  * @type {{ encode: (data: string | import('buffer').Buffer) => string, decode: (data: string) => import('buffer').Buffer }}
