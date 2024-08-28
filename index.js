@@ -3,10 +3,8 @@
  */
 import * as crypto from 'node:crypto'
 
-/**
- * @type {{ encode: (data: string | import('buffer').Buffer) => string, decode: (data: string) => import('buffer').Buffer }}
- */
-import * as base32 from 'thirty-two'
+import base32Encode from 'base32-encode'
+import base32Decode from 'base32-decode'
 
 // SHA1 is not secure, but in the context of TOTPs, it's unrealistic to expect
 // security issues. Also, it's the default for compatibility with OTP apps.
@@ -118,7 +116,7 @@ function verifyHOTP(
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
- * secret: base32.encode(crypto.randomBytes(10)).toString().
+ * secret: base32Encode(crypto.randomBytes(10), 'RFC4648').
  * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}}
  * The OTP, secret, and config options used to generate the OTP.
  */
@@ -126,10 +124,10 @@ export function generateTOTP({
 	period = DEFAULT_PERIOD,
 	digits = DEFAULT_DIGITS,
 	algorithm = DEFAULT_ALGORITHM,
-	secret = base32.encode(crypto.randomBytes(10)).toString(),
+	secret = base32Encode(crypto.randomBytes(10), 'RFC4648'),
 	charSet = DEFAULT_CHAR_SET,
 } = {}) {
-	const otp = generateHOTP(base32.decode(secret), {
+	const otp = generateHOTP(base32Decode(secret, 'RFC4648'), {
 		counter: getCounter(period),
 		digits,
 		algorithm,
@@ -205,7 +203,15 @@ export function verifyTOTP({
 	charSet,
 	window = DEFAULT_WINDOW,
 }) {
-	return verifyHOTP(otp, base32.decode(secret), {
+	let decodedSecret
+	try {
+		decodedSecret = base32Decode(secret, 'RFC4648')
+	} catch (error) {
+		// If the secret is invalid, return null
+		return null
+	}
+
+	return verifyHOTP(otp, Buffer.from(decodedSecret), {
 		counter: getCounter(period),
 		digits,
 		window,

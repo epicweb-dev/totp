@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import { test } from 'node:test'
-import base32 from 'thirty-two'
+import base32Encode from 'base32-encode'
 import { generateTOTP, getTOTPAuthUri, verifyTOTP } from './index.js'
 
 test('OTP can be generated and verified', () => {
@@ -17,7 +17,10 @@ test('options can be customized', () => {
 		algorithm: 'SHA256',
 		period: 60,
 		digits: 8,
-		secret: base32.encode(Math.random().toString(16).slice(2)).toString(),
+		secret: base32Encode(
+			new TextEncoder().encode(Math.random().toString(16).slice(2)),
+			'RFC4648'
+		).toString(),
 		charSet: 'abcdef',
 	}
 	const { otp, ...config } = generateTOTP(options)

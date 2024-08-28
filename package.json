@@ -33,7 +33,8 @@
   "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com/)",
   "license": "MIT",
   "dependencies": {
-    "thirty-two": "^1.0.2"
+    "base32-decode": "^1.0.0",
+    "base32-encode": "^2.0.0"
   },
   "engines": {
     "node": ">=18"
