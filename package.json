@@ -16,7 +16,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test --test-reporter spec --experimental-test-coverage *.test.js",
-    "test:watch": "node --test --test-reporter spec --watch *.test.js"
+    "test:watch": "node --test --test-reporter spec --watch *.test.js",
+    "typecheck": "npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs --checkJs --downlevelIteration --module nodenext --moduleResolution nodenext --target es2022 --outDir . index.js"
   },
   "keywords": [
     "totp",

@@ -21,7 +21,7 @@ const DEFAULT_PERIOD = 30
  * Generates a HMAC-based One Time Password (HOTP) using the provided secret and
  * configuration options.
  *
- * @param {Buffer} secret - The secret used to generate the HOTP.
+ * @param {ArrayBuffer} secret - The secret used to generate the HOTP.
  * @param {Object} options - The configuration options for the HOTP.
  * @param {number} [options.counter=0] - The counter value to use for the HOTP.
  * Defaults to 0.
@@ -42,7 +42,8 @@ function generateHOTP(
 	} = {}
 ) {
 	const byteCounter = Buffer.from(intToBytes(counter))
-	const hmac = crypto.createHmac(algorithm, secret)
+	const secretBuffer = Buffer.from(secret)
+	const hmac = crypto.createHmac(algorithm, secretBuffer)
 	const digest = hmac.update(byteCounter).digest('hex')
 	const hashBytes = hexToBytes(digest)
 	const offset = hashBytes[19] & 0xf
