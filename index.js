@@ -1,8 +1,6 @@
 /**
  * This was copy/paste/modified/tested from https://npm.im/notp (MIT)
  */
-import * as crypto from 'node:crypto'
-
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 
@@ -11,7 +9,7 @@ import base32Decode from 'base32-decode'
 // That said, if you're acting the role of both client and server and your TOTP
 // is longer lived, you can definitely use a more secure algorithm like SHA256.
 // Learn more: https://www.rfc-editor.org/rfc/rfc4226#page-25 (B.1. SHA-1 Status)
-const DEFAULT_ALGORITHM = 'SHA1'
+const DEFAULT_ALGORITHM = 'SHA-1'
 const DEFAULT_CHAR_SET = '0123456789'
 const DEFAULT_DIGITS = 6
 const DEFAULT_WINDOW = 1
@@ -30,9 +28,9 @@ const DEFAULT_PERIOD = 30
  * @param {string} [options.algorithm='SHA1'] - The algorithm to use for the
  * HOTP. Defaults to 'SHA1'.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
- * @returns {string} The generated HOTP.
+ * @returns {Promise<string>} The generated HOTP.
  */
-function generateHOTP(
+async function generateHOTP(
 	secret,
 	{
 		counter = 0,
@@ -41,11 +39,16 @@ function generateHOTP(
 		charSet = DEFAULT_CHAR_SET,
 	} = {}
 ) {
-	const byteCounter = Buffer.from(intToBytes(counter))
-	const secretBuffer = Buffer.from(secret)
-	const hmac = crypto.createHmac(algorithm, secretBuffer)
-	const digest = hmac.update(byteCounter).digest('hex')
-	const hashBytes = hexToBytes(digest)
+	const byteCounter = intToBytes(counter)
+	const key = await crypto.subtle.importKey(
+		'raw',
+		secret,
+		{ name: 'HMAC', hash: algorithm },
+		false,
+		['sign']
+	)
+	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
+	const hashBytes = new Uint8Array(signature)
 	const offset = hashBytes[19] & 0xf
 	let hotpVal =
 		((hashBytes[offset] & 0x7f) << 24) |
@@ -67,7 +70,7 @@ function generateHOTP(
  * configuration options.
  *
  * @param {string} otp - The OTP to verify.
- * @param {Buffer} secret - The secret used to generate the HOTP.
+ * @param {ArrayBuffer} secret - The secret used to generate the HOTP.
  * @param {Object} options - The configuration options for the HOTP.
  * @param {number} [options.counter=0] - The counter value to use for the HOTP.
  * Defaults to 0.
@@ -78,11 +81,11 @@ function generateHOTP(
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window=1] - The number of counter values to check
  * before and after the current counter value. Defaults to 1.
- * @returns {{delta: number}|null} An object with the `delta` property
+ * @returns {Promise<{delta: number}|null>} An object with the `delta` property
  * indicating the number of counter values between the current counter value and
  * the verified counter value, or `null` if the OTP could not be verified.
  */
-function verifyHOTP(
+async function verifyHOTP(
 	otp,
 	secret,
 	{
@@ -95,7 +98,7 @@ function verifyHOTP(
 ) {
 	for (let i = counter - window; i <= counter + window; ++i) {
 		if (
-			generateHOTP(secret, { counter: i, digits, algorithm, charSet }) === otp
+			await generateHOTP(secret, { counter: i, digits, algorithm, charSet }) === otp
 		) {
 			return { delta: i - counter }
 		}
@@ -117,18 +120,18 @@ function verifyHOTP(
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
- * secret: base32Encode(crypto.randomBytes(10), 'RFC4648').
- * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}}
+ * secret: base32Encode(crypto.getRandomValues(new Uint8Array(10)), 'RFC4648').
+ * @returns {Promise<{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}>}
  * The OTP, secret, and config options used to generate the OTP.
  */
-export function generateTOTP({
+export async function generateTOTP({
 	period = DEFAULT_PERIOD,
 	digits = DEFAULT_DIGITS,
 	algorithm = DEFAULT_ALGORITHM,
-	secret = base32Encode(crypto.randomBytes(10), 'RFC4648'),
+	secret = base32Encode(crypto.getRandomValues(new Uint8Array(10)), 'RFC4648'),
 	charSet = DEFAULT_CHAR_SET,
 } = {}) {
-	const otp = generateHOTP(base32Decode(secret, 'RFC4648'), {
+	const otp = await generateHOTP(base32Decode(secret, 'RFC4648'), {
 		counter: getCounter(period),
 		digits,
 		algorithm,
@@ -191,11 +194,11 @@ export function getTOTPAuthUri({
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
  *
- * @returns {{delta: number}|null} an object with "delta" which is the delta
+ * @returns {Promise<{delta: number}|null>} an object with "delta" which is the delta
  * between the current OTP and the OTP that was verified, or null if the OTP is
  * invalid.
  */
-export function verifyTOTP({
+export async function verifyTOTP({
 	otp,
 	secret,
 	period,
@@ -212,7 +215,7 @@ export function verifyTOTP({
 		return null
 	}
 
-	return verifyHOTP(otp, Buffer.from(decodedSecret), {
+	return verifyHOTP(otp, new Uint8Array(decodedSecret), {
 		counter: getCounter(period),
 		digits,
 		window,
@@ -225,23 +228,15 @@ export function verifyTOTP({
  * Converts a number to a byte array.
  *
  * @param {number} num The number to convert to a byte array.
- * @returns {number[]} The byte array representation of the number.
+ * @returns {Uint8Array} The byte array representation of the number.
  */
 function intToBytes(num) {
-	const buffer = Buffer.alloc(8)
-	// eslint-disable-next-line no-undef
-	buffer.writeBigInt64BE(BigInt(num))
-	return [...buffer]
-}
-
-/**
- * Converts a hexadecimal string to a byte array.
- *
- * @param {string} hex The hexadecimal string to convert to a byte array.
- * @returns {number[]} The byte array representation of the hexadecimal string.
- */
-function hexToBytes(hex) {
-	return [...Buffer.from(hex, 'hex')]
+	const arr = new Uint8Array(8)
+	for (let i = 7; i >= 0; i--) {
+		arr[i] = num & 0xff
+		num = num >> 8
+	}
+	return arr
 }
 
 /**
