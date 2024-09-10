@@ -79,7 +79,7 @@ to their authenticator app).
 import { generateTOTP, getTOTPAuthUri, verifyTOTP } from '@epic-web/totp'
 
 // Here's how to use the default config. All the options are returned:
-const { secret, period, digits, algorithm } = generateTOTP()
+const { secret, period, digits, algorithm } = await generateTOTP()
 const otpUri = getTOTPAuthUri({
 	period,
 	digits,
@@ -99,7 +99,7 @@ const otpUri = getTOTPAuthUri({
 const code = await getCodeFromUser()
 
 // now verify the code:
-const isValid = verifyTOTP({ otp: code, secret, period, digits, algorithm })
+const isValid = await verifyTOTP({ otp: code, secret, period, digits, algorithm })
 
 // if it's valid, save the secret, period, digits, and algorithm to the database
 // along with who it belongs to and use this info to verify the user when they
@@ -114,8 +114,8 @@ number/etc.:
 ```js
 import { generateTOTP, verifyTOTP } from '@epic-web/totp'
 
-const { otp, secret, digits, period, algorithm } = generateTOTP({
-	algorithm: 'SHA256', // more secure algorithm should be used with longer-lived OTPs
+const { otp, secret, digits, period, algorithm } = await generateTOTP({
+	algorithm: 'SHA-256', // more secure algorithm should be used with longer-lived OTPs
 	period: 10 * 60, // 10 minutes
 })
 
@@ -142,7 +142,7 @@ const code = await getCodeFromUser()
 const userCodeConfig = await getVerificationFromDatabase({
 	target: user.email,
 })
-const isValid = verifyTOTP({ otp: code, ...userCodeConfig })
+const isValid = await verifyTOTP({ otp: code, ...userCodeConfig })
 
 if (isValid) {
 	await deleteVerificationFromDatabase({ target: user.email })
@@ -185,14 +185,14 @@ Here's how you can generate an OTP with a custom character set:
 ```js
 import { generateTOTP, verifyTOTP } from '@epic-web/totp'
 
-const { otp, secret, period, digits, algorithm, charSet } = generateTOTP({
+const { otp, secret, period, digits, algorithm, charSet } = await generateTOTP({
 	charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', // custom character set
 })
 
 // Remember to save the charSet to your database as well.
 
 // To verify
-const isValid = verifyTOTP({
+const isValid = await verifyTOTP({
 	otp,
 	secret,
 	period,
@@ -228,7 +228,7 @@ will show you all this stuff, but just in case, here's that:
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
  * secret: base32.encode(crypto.randomBytes(10)).toString().
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
- * @returns {{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}}
+ * @returns {Promise<{otp: string, secret: string, period: number, digits: number, algorithm: string, charSet: string}>}
  * The OTP, secret, and config options used to generate the OTP.
  */
 ```
@@ -251,7 +251,7 @@ will show you all this stuff, but just in case, here's that:
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
  *
- * @returns {{delta: number}|null} an object with "delta" which is the delta
+ * @returns {Promise<{delta: number}|null>} an object with "delta" which is the delta
  * between the current OTP and the OTP that was verified, or null if the OTP is
  * invalid.
  */
