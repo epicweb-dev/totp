@@ -115,7 +115,7 @@ number/etc.:
 import { generateTOTP, verifyTOTP } from '@epic-web/totp'
 
 const { otp, secret, digits, period, algorithm } = await generateTOTP({
-	algorithm: 'SHA256', // more secure algorithm should be used with longer-lived OTPs
+	algorithm: 'SHA-256', // more secure algorithm should be used with longer-lived OTPs
 	period: 10 * 60, // 10 minutes
 })
 
