@@ -42,8 +42,8 @@ verify your users.
 
 This was copy/paste/modified/tested from [notp](https://npm.im/notp) (MIT)
 
-The primary motivation was to support a more secure algorithm than `SHA1`
-(though Google Authenticator only supports `SHA1`, longer-lived OTPs should use
+The primary motivation was to support a more secure algorithm than `SHA-1`
+(though Google Authenticator only supports `SHA-1`, longer-lived OTPs should use
 a more secure algorithm). The maintainer has not actively responded to issues or
 pull requests in years.
 
@@ -222,8 +222,8 @@ will show you all this stuff, but just in case, here's that:
  * @param {number} [options.period=30] The number of seconds for the OTP to be
  * valid. Defaults to 30.
  * @param {number} [options.digits=6] The length of the OTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA1'] The algorithm to use. Defaults to
- * SHA1.
+ * @param {string} [options.algorithm='SHA-1'] The algorithm to use. Defaults to
+ * SHA-1.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
  * secret: base32.encode(crypto.randomBytes(10)).toString().

@@ -4,10 +4,10 @@
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 
-// SHA1 is not secure, but in the context of TOTPs, it's unrealistic to expect
+// SHA-1 is not secure, but in the context of TOTPs, it's unrealistic to expect
 // security issues. Also, it's the default for compatibility with OTP apps.
 // That said, if you're acting the role of both client and server and your TOTP
-// is longer lived, you can definitely use a more secure algorithm like SHA256.
+// is longer lived, you can definitely use a more secure algorithm like SHA-256.
 // Learn more: https://www.rfc-editor.org/rfc/rfc4226#page-25 (B.1. SHA-1 Status)
 const DEFAULT_ALGORITHM = 'SHA-1'
 const DEFAULT_CHAR_SET = '0123456789'
@@ -25,8 +25,8 @@ const DEFAULT_PERIOD = 30
  * Defaults to 0.
  * @param {number} [options.digits=6] - The number of digits to use for the
  * HOTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA1'] - The algorithm to use for the
- * HOTP. Defaults to 'SHA1'.
+ * @param {string} [options.algorithm='SHA-1'] - The algorithm to use for the
+ * HOTP. Defaults to 'SHA-1'.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {Promise<string>} The generated HOTP.
  */
@@ -76,8 +76,8 @@ async function generateHOTP(
  * Defaults to 0.
  * @param {number} [options.digits=6] - The number of digits to use for the
  * HOTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA1'] - The algorithm to use for the
- * HOTP. Defaults to 'SHA1'.
+ * @param {string} [options.algorithm='SHA-1'] - The algorithm to use for the
+ * HOTP. Defaults to 'SHA-1'.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window=1] - The number of counter values to check
  * before and after the current counter value. Defaults to 1.
@@ -115,8 +115,8 @@ async function verifyHOTP(
  * @param {number} [options.period=30] The number of seconds for the OTP to be
  * valid. Defaults to 30.
  * @param {number} [options.digits=6] The length of the OTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA1'] The algorithm to use. Defaults to
- * SHA1.
+ * @param {string} [options.algorithm='SHA-1'] The algorithm to use. Defaults to
+ * SHA-1.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
  * base32 encoded (you can use https://npm.im/thirty-two). Defaults to a random
