@@ -6,6 +6,9 @@ import base32Decode from 'base32-decode'
 
 /**
  * @typedef {'SHA-1' | 'SHA-256' | 'SHA-386' | 'SHA-512' | string & {}} HashAlgorithm
+ *
+ * For all available algorithms, refer to the following:
+ * https://developer.mozilla.org/en-US/docs/Web/API/HmacImportParams#hash
  */
 
 // SHA-1 is not secure, but in the context of TOTPs, it's unrealistic to expect
@@ -260,4 +263,3 @@ function getCounter(period = DEFAULT_PERIOD) {
 	const counter = Math.floor(now / 1000 / period)
 	return counter
 }
-
