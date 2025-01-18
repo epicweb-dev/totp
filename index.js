@@ -4,6 +4,13 @@
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 
+/**
+ * @typedef {'SHA-1' | 'SHA-256' | 'SHA-386' | 'SHA-512' | string & {}} HashAlgorithm
+ *
+ * For all available algorithms, refer to the following:
+ * https://developer.mozilla.org/en-US/docs/Web/API/HmacImportParams#hash
+ */
+
 // SHA-1 is not secure, but in the context of TOTPs, it's unrealistic to expect
 // security issues. Also, it's the default for compatibility with OTP apps.
 // That said, if you're acting the role of both client and server and your TOTP
@@ -25,7 +32,7 @@ const DEFAULT_PERIOD = 30
  * Defaults to 0.
  * @param {number} [options.digits=6] - The number of digits to use for the
  * HOTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA-1'] - The algorithm to use for the
+ * @param {HashAlgorithm} [options.algorithm='SHA-1'] - The algorithm to use for the
  * HOTP. Defaults to 'SHA-1'.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {Promise<string>} The generated HOTP.
@@ -37,7 +44,7 @@ async function generateHOTP(
 		digits = DEFAULT_DIGITS,
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
-	} = {}
+	} = {},
 ) {
 	const byteCounter = intToBytes(counter)
 	const key = await crypto.subtle.importKey(
@@ -45,7 +52,7 @@ async function generateHOTP(
 		secret,
 		{ name: 'HMAC', hash: algorithm },
 		false,
-		['sign']
+		['sign'],
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
 	const hashBytes = new Uint8Array(signature)
@@ -76,7 +83,7 @@ async function generateHOTP(
  * Defaults to 0.
  * @param {number} [options.digits=6] - The number of digits to use for the
  * HOTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA-1'] - The algorithm to use for the
+ * @param {HashAlgorithm} [options.algorithm='SHA-1'] - The algorithm to use for the
  * HOTP. Defaults to 'SHA-1'.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window=1] - The number of counter values to check
@@ -94,11 +101,16 @@ async function verifyHOTP(
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
 		window = DEFAULT_WINDOW,
-	} = {}
+	} = {},
 ) {
 	for (let i = counter - window; i <= counter + window; ++i) {
 		if (
-			await generateHOTP(secret, { counter: i, digits, algorithm, charSet }) === otp
+			(await generateHOTP(secret, {
+				counter: i,
+				digits,
+				algorithm,
+				charSet,
+			})) === otp
 		) {
 			return { delta: i - counter }
 		}
@@ -115,7 +127,7 @@ async function verifyHOTP(
  * @param {number} [options.period=30] The number of seconds for the OTP to be
  * valid. Defaults to 30.
  * @param {number} [options.digits=6] The length of the OTP. Defaults to 6.
- * @param {string} [options.algorithm='SHA-1'] The algorithm to use. Defaults to
+ * @param {HashAlgorithm} [options.algorithm='SHA-1'] The algorithm to use. Defaults to
  * SHA-1.
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @param {string} [options.secret] The secret to use for the TOTP. It should be
@@ -148,7 +160,7 @@ export async function generateTOTP({
  * @param {Object} options Configuration options for the TOTP Auth URI.
  * @param {number} options.period The number of seconds for the OTP to be valid.
  * @param {number} options.digits The length of the OTP.
- * @param {string} options.algorithm The algorithm to use.
+ * @param {HashAlgorithm} options.algorithm The algorithm to use.
  * @param {string} options.secret The secret to use for the TOTP Auth URI.
  * @param {string} options.accountName A way to uniquely identify this Auth URI
  * (in case they have multiple of these).
@@ -189,7 +201,7 @@ export function getTOTPAuthUri({
  * @param {string} options.secret The secret to use for the TOTP.
  * @param {number} [options.period] The number of seconds for the OTP to be valid.
  * @param {number} [options.digits] The length of the OTP.
- * @param {string} [options.algorithm] The algorithm to use.
+ * @param {HashAlgorithm} [options.algorithm] The algorithm to use.
  * @param {string} [options.charSet] - The character set to use, defaults to the numbers 0-9.
  * @param {number} [options.window] The number of OTPs to check before and after
  * the current OTP. Defaults to 1.
