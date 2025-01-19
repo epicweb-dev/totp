@@ -8,6 +8,9 @@
     "index.js",
     "index.d.ts"
   ],
+  "repository": {
+    "url": "https://github.com/epicweb-dev/totp"
+  },
   "publishConfig": {
     "access": "public"
   },
