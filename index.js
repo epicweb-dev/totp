@@ -165,7 +165,9 @@ export async function generateTOTP({
  * @param {Object} options Configuration options for the TOTP Auth URI.
  * @param {number} options.period The number of seconds for the OTP to be valid.
  * @param {number} options.digits The length of the OTP.
- * @param {HashAlgorithm} options.algorithm The algorithm to use.
+ * @param {HashAlgorithm} options.algorithm The algorithm to use. (Note, we
+ * automatically remove the dashes from the algorithm name because the otpauth
+ * URI spec requires it.)
  * @param {string} options.secret The secret to use for the TOTP Auth URI.
  * @param {string} options.accountName A way to uniquely identify this Auth URI
  * (in case they have multiple of these).
@@ -184,7 +186,7 @@ export function getTOTPAuthUri({
 	const params = new URLSearchParams({
 		secret,
 		issuer,
-		algorithm,
+		algorithm: algorithm.algorithm.replaceAll('-', ''),
 		digits: digits.toString(),
 		period: period.toString(),
 	})
