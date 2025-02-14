@@ -56,17 +56,22 @@ async function generateHOTP(
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
 	const hashBytes = new Uint8Array(signature)
-	const offset = hashBytes[19] & 0xf
-	let hotpVal =
-		((hashBytes[offset] & 0x7f) << 24) |
-		((hashBytes[offset + 1] & 0xff) << 16) |
-		((hashBytes[offset + 2] & 0xff) << 8) |
-		(hashBytes[offset + 3] & 0xff)
+
+	// Use more bytes for longer OTPs
+	const bytesNeeded = Math.ceil((digits * Math.log2(charSet.length)) / 8)
+	const offset = hashBytes[hashBytes.length - 1] & 0xf
+
+	// Convert bytes to BigInt for larger numbers
+	let hotpVal = 0n
+	for (let i = 0; i < Math.min(bytesNeeded, hashBytes.length - offset); i++) {
+		hotpVal = (hotpVal << 8n) | BigInt(hashBytes[offset + i])
+	}
 
 	let hotp = ''
+	const charSetLength = BigInt(charSet.length)
 	for (let i = 0; i < digits; i++) {
-		hotp = charSet.charAt(hotpVal % charSet.length) + hotp
-		hotpVal = Math.floor(hotpVal / charSet.length)
+		hotp = charSet.charAt(Number(hotpVal % charSetLength)) + hotp
+		hotpVal = hotpVal / charSetLength
 	}
 
 	return hotp
