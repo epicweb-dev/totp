@@ -186,7 +186,7 @@ export function getTOTPAuthUri({
 	const params = new URLSearchParams({
 		secret,
 		issuer,
-		algorithm: algorithm.algorithm.replaceAll('-', ''),
+		algorithm: algorithm.algorithm?.replaceAll('-', ''),
 		digits: digits.toString(),
 		period: period.toString(),
 	})
