@@ -44,7 +44,7 @@ async function generateHOTP(
 		digits = DEFAULT_DIGITS,
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
-	} = {},
+	} = {}
 ) {
 	const byteCounter = intToBytes(counter)
 	const key = await crypto.subtle.importKey(
@@ -52,7 +52,7 @@ async function generateHOTP(
 		secret,
 		{ name: 'HMAC', hash: algorithm },
 		false,
-		['sign'],
+		['sign']
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
 	const hashBytes = new Uint8Array(signature)
@@ -101,7 +101,7 @@ async function verifyHOTP(
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
 		window = DEFAULT_WINDOW,
-	} = {},
+	} = {}
 ) {
 	for (let i = counter - window; i <= counter + window; ++i) {
 		if (

@@ -32,6 +32,12 @@ jobs:
       - name: 🧪 Test
         run: npm run test
 
+      - name: 💪 Generate Types
+        run:
+          npx -p typescript tsc --declaration --emitDeclarationOnly --allowJs
+          --checkJs --skipLibCheck --downlevelIteration --module nodenext
+          --moduleResolution nodenext --target es2022 --outDir . index.js
+
   release:
     name: 🚀 Release
     needs: [test]
