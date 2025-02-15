@@ -1,7 +1,8 @@
 import assert from 'node:assert'
 import { test } from 'node:test'
 import base32Encode from 'base32-encode'
-import { generateTOTP, getTOTPAuthUri, verifyTOTP } from './index.js'
+import base32Decode from 'base32-decode'
+import { generateTOTP, getTOTPAuthUri, verifyTOTP, generateHOTP } from './index.js'
 
 test('OTP can be generated and verified', async () => {
 	const { secret, otp, algorithm, period, digits } = await generateTOTP()
@@ -144,4 +145,19 @@ test('OTP with digits > 6 should not pad with first character of charSet', async
 			'First 6 characters should not all be A'
 		)
 	}
+})
+
+
+test('generateHOTP works with maximum HMAC offset value',  async () => {
+  await assert.doesNotReject( async() => {
+    // These specific secret and counter values will cause offset to be 15
+    const secret = '6YY3NUMNTQ73NRH3';
+    const counter = 57988074;
+      await generateHOTP(base32Decode(secret, 'RFC4648'),{
+        counter,
+        digits: 12, // trigger the use of the 64bit htopVal
+        algorithm: 'SHA-1',
+        charSet: '0123456789',
+      });
+    });
 })
