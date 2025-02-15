@@ -55,17 +55,30 @@ async function generateHOTP(
 		['sign']
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
-	const hashBytes = new Uint8Array(signature)
+  const hashBytes = new Uint8Array(signature)
+  // offset is always the last 4 bits of the signature; 0-15
+	const offset = hashBytes[hashBytes.length-1] & 0xf
 
-	// Use more bytes for longer OTPs
-	const bytesNeeded = Math.ceil((digits * Math.log2(charSet.length)) / 8)
-	const offset = hashBytes[hashBytes.length - 1] & 0xf
-
-	// Convert bytes to BigInt for larger numbers
-	let hotpVal = 0n
-	for (let i = 0; i < Math.min(bytesNeeded, hashBytes.length - offset); i++) {
-		hotpVal = (hotpVal << 8n) | BigInt(hashBytes[offset + i])
-	}
+  let hotpVal = 0n
+  if (digits === 6) {
+    // stay compatible with the authenticator apps and only use the bottom 32 bits of BigInt
+    hotpVal = 0n |
+    BigInt((hashBytes[offset] & 0x7f)) << 24n |
+    BigInt((hashBytes[offset + 1])) << 16n |
+    BigInt((hashBytes[offset + 2])) << 8n |
+    BigInt(hashBytes[offset + 3])
+  } else {
+    // otherwise create a 64bit value from the hashBytes
+    hotpVal = 0n |
+    BigInt((hashBytes[offset] & 0x7f)) << 56n |
+    BigInt((hashBytes[offset + 1])) << 48n |
+    BigInt((hashBytes[offset + 2])) << 40n |
+    BigInt((hashBytes[offset + 3])) << 32n |
+    BigInt((hashBytes[offset + 4])) << 24n |
+    BigInt((hashBytes[offset + 5])) << 16n |
+    BigInt((hashBytes[offset + 6])) << 8n |
+    BigInt(hashBytes[offset + 7])
+  }
 
 	let hotp = ''
 	const charSetLength = BigInt(charSet.length)
