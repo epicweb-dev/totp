@@ -37,7 +37,7 @@ const DEFAULT_PERIOD = 30
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {Promise<string>} The generated HOTP.
  */
-async function generateHOTP(
+export async function generateHOTP(
 	secret,
 	{
 		counter = 0,
@@ -56,28 +56,31 @@ async function generateHOTP(
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
   const hashBytes = new Uint8Array(signature)
-  // offset is always the last 4 bits of the signature; 0-15
-	const offset = hashBytes[hashBytes.length-1] & 0xf
+  // offset is always the last 4 bits of the signature; its value: 0-15
+  const offset = hashBytes[hashBytes.length - 1] & 0xf
 
   let hotpVal = 0n
   if (digits === 6) {
     // stay compatible with the authenticator apps and only use the bottom 32 bits of BigInt
     hotpVal = 0n |
-    BigInt((hashBytes[offset] & 0x7f)) << 24n |
-    BigInt((hashBytes[offset + 1])) << 16n |
-    BigInt((hashBytes[offset + 2])) << 8n |
+    BigInt(hashBytes[offset] & 0x7f) << 24n |
+    BigInt(hashBytes[offset + 1]) << 16n |
+    BigInt(hashBytes[offset + 2]) << 8n |
     BigInt(hashBytes[offset + 3])
   } else {
     // otherwise create a 64bit value from the hashBytes
     hotpVal = 0n |
-    BigInt((hashBytes[offset] & 0x7f)) << 56n |
-    BigInt((hashBytes[offset + 1])) << 48n |
-    BigInt((hashBytes[offset + 2])) << 40n |
-    BigInt((hashBytes[offset + 3])) << 32n |
-    BigInt((hashBytes[offset + 4])) << 24n |
-    BigInt((hashBytes[offset + 5])) << 16n |
-    BigInt((hashBytes[offset + 6])) << 8n |
-    BigInt(hashBytes[offset + 7])
+    BigInt(hashBytes[offset] & 0x7f) << 56n |
+    BigInt(hashBytes[offset + 1]) << 48n |
+    BigInt(hashBytes[offset + 2]) << 40n |
+    BigInt(hashBytes[offset + 3]) << 32n |
+    BigInt(hashBytes[offset + 4]) << 24n |
+    
+    // we have only 20 hashBytes; if offset is 15 these indexes are out of the hashBytes
+    // fallback to zero
+    BigInt(hashBytes[offset + 5] ?? 0n) << 16n |
+    BigInt(hashBytes[offset + 6] ?? 0n) << 8n |
+    BigInt(hashBytes[offset + 7] ?? 0n)
   }
 
 	let hotp = ''
