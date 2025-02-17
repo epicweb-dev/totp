@@ -77,17 +77,20 @@ export async function generateHOTP(
     BigInt(hashBytes[offset + 4]) << 24n |
     
     // we have only 20 hashBytes; if offset is 15 these indexes are out of the hashBytes
-    // fallback to zero
-    BigInt(hashBytes[offset + 5] ?? 0n) << 16n |
-    BigInt(hashBytes[offset + 6] ?? 0n) << 8n |
-    BigInt(hashBytes[offset + 7] ?? 0n)
+    // fallback to the bytes at the start of the hashBytes
+    BigInt(hashBytes[(offset + 5) % 20]) << 16n |
+    BigInt(hashBytes[(offset + 6) % 20]) << 8n |
+    BigInt(hashBytes[(offset + 7) % 20])
   }
 
 	let hotp = ''
 	const charSetLength = BigInt(charSet.length)
 	for (let i = 0; i < digits; i++) {
-		hotp = charSet.charAt(Number(hotpVal % charSetLength)) + hotp
-		hotpVal = hotpVal / charSetLength
+    hotp = charSet.charAt(Number(hotpVal % charSetLength)) + hotp
+
+    // Ensures hotpVal decreases at a fixed rate, independent of charSet length.
+    // 10n is compatible with the original TOTP algorithm used in the authenticator apps.
+    hotpVal = hotpVal / 10n
 	}
 
 	return hotp

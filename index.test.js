@@ -161,3 +161,43 @@ test('generateHOTP works with maximum HMAC offset value',  async () => {
       });
     });
 })
+
+test('20 digits OTP should not pad with first character of charSet regardless of the charSet length', async () => {
+	const longCharSet = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+	const shortCharSet = 'ABCDEFGHIJK'
+	
+  async function generate20DigitCodeWithCharSet(charSet) {
+
+    const iterations = 100
+    let allOtps = []
+  
+    for (let i = 0; i < iterations; i++) {
+      const { otp } = await generateTOTP({
+        algorithm: 'SHA-256',
+        charSet,
+        digits: 20,
+        period: 60 * 30,
+      })
+      allOtps.push(otp)
+  
+      // Verify the OTP only contains characters from the charSet
+      assert.match(
+        otp,
+        new RegExp(`^[${charSet}]{20}$`),
+        'OTP should be 20 characters from the charSet'
+      )
+  
+      // The first 6 characters should not all be 'A' (first char of charSet)
+      const firstSixChars = otp.slice(0, 6)
+      assert.notStrictEqual(
+        firstSixChars,
+        'A'.repeat(6),
+        'First 6 characters should not all be A'
+      )
+    }
+  }
+
+  await generate20DigitCodeWithCharSet(shortCharSet);
+  await generate20DigitCodeWithCharSet(longCharSet);
+
+})
