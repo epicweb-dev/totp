@@ -37,14 +37,14 @@ const DEFAULT_PERIOD = 30
  * @param {string} [options.charSet='0123456789'] - The character set to use, defaults to the numbers 0-9.
  * @returns {Promise<string>} The generated HOTP.
  */
-export async function generateHOTP(
+async function generateHOTP(
 	secret,
 	{
 		counter = 0,
 		digits = DEFAULT_DIGITS,
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
-	} = {},
+	} = {}
 ) {
 	const byteCounter = intToBytes(counter)
 	const key = await crypto.subtle.importKey(
@@ -52,46 +52,26 @@ export async function generateHOTP(
 		secret,
 		{ name: 'HMAC', hash: algorithm },
 		false,
-		['sign'],
+		['sign']
 	)
 	const signature = await crypto.subtle.sign('HMAC', key, byteCounter)
 	const hashBytes = new Uint8Array(signature)
-	// offset is always the last 4 bits of the signature; its value: 0-15
+
+	// Use more bytes for longer OTPs
+	const bytesNeeded = Math.ceil((digits * Math.log2(charSet.length)) / 8)
 	const offset = hashBytes[hashBytes.length - 1] & 0xf
 
+	// Convert bytes to BigInt for larger numbers
 	let hotpVal = 0n
-	if (digits === 6) {
-		// stay compatible with the authenticator apps and only use the bottom 32 bits of BigInt
-		hotpVal =
-			0n |
-			(BigInt(hashBytes[offset] & 0x7f) << 24n) |
-			(BigInt(hashBytes[offset + 1]) << 16n) |
-			(BigInt(hashBytes[offset + 2]) << 8n) |
-			BigInt(hashBytes[offset + 3])
-	} else {
-		// otherwise create a 64bit value from the hashBytes
-		hotpVal =
-			0n |
-			(BigInt(hashBytes[offset] & 0x7f) << 56n) |
-			(BigInt(hashBytes[offset + 1]) << 48n) |
-			(BigInt(hashBytes[offset + 2]) << 40n) |
-			(BigInt(hashBytes[offset + 3]) << 32n) |
-			(BigInt(hashBytes[offset + 4]) << 24n) |
-			// we have only 20 hashBytes; if offset is 15 these indexes are out of the hashBytes
-			// fallback to the bytes at the start of the hashBytes
-			(BigInt(hashBytes[(offset + 5) % 20]) << 16n) |
-			(BigInt(hashBytes[(offset + 6) % 20]) << 8n) |
-			BigInt(hashBytes[(offset + 7) % 20])
+	for (let i = 0; i < Math.min(bytesNeeded, hashBytes.length - offset); i++) {
+		hotpVal = (hotpVal << 8n) | BigInt(hashBytes[offset + i])
 	}
 
 	let hotp = ''
 	const charSetLength = BigInt(charSet.length)
 	for (let i = 0; i < digits; i++) {
 		hotp = charSet.charAt(Number(hotpVal % charSetLength)) + hotp
-
-		// Ensures hotpVal decreases at a fixed rate, independent of charSet length.
-		// 10n is compatible with the original TOTP algorithm used in the authenticator apps.
-		hotpVal = hotpVal / 10n
+		hotpVal = hotpVal / charSetLength
 	}
 
 	return hotp
@@ -126,7 +106,7 @@ async function verifyHOTP(
 		algorithm = DEFAULT_ALGORITHM,
 		charSet = DEFAULT_CHAR_SET,
 		window = DEFAULT_WINDOW,
-	} = {},
+	} = {}
 ) {
 	for (let i = counter - window; i <= counter + window; ++i) {
 		if (

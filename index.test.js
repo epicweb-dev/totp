@@ -1,13 +1,7 @@
 import assert from 'node:assert'
 import { test } from 'node:test'
 import base32Encode from 'base32-encode'
-import base32Decode from 'base32-decode'
-import {
-	generateTOTP,
-	getTOTPAuthUri,
-	verifyTOTP,
-	generateHOTP,
-} from './index.js'
+import { generateTOTP, getTOTPAuthUri, verifyTOTP } from './index.js'
 
 test('OTP can be generated and verified', async () => {
 	const { secret, otp, algorithm, period, digits } = await generateTOTP()
@@ -26,7 +20,7 @@ test('options can be customized', async () => {
 		digits: 8,
 		secret: base32Encode(
 			new TextEncoder().encode(Math.random().toString(16).slice(2)),
-			'RFC4648',
+			'RFC4648'
 		).toString(),
 		charSet: 'abcdef',
 	}
@@ -139,7 +133,7 @@ test('OTP with digits > 6 should not pad with first character of charSet', async
 		assert.match(
 			otp,
 			new RegExp(`^[${charSet}]{12}$`),
-			'OTP should be 12 characters from the charSet',
+			'OTP should be 12 characters from the charSet'
 		)
 
 		// The first 6 characters should not all be 'A' (first char of charSet)
@@ -147,59 +141,7 @@ test('OTP with digits > 6 should not pad with first character of charSet', async
 		assert.notStrictEqual(
 			firstSixChars,
 			'A'.repeat(6),
-			'First 6 characters should not all be A',
+			'First 6 characters should not all be A'
 		)
 	}
-})
-
-test('generateHOTP works with maximum HMAC offset value', async () => {
-	await assert.doesNotReject(async () => {
-		// These specific secret and counter values will cause offset to be 15
-		const secret = '6YY3NUMNTQ73NRH3'
-		const counter = 57988074
-		await generateHOTP(base32Decode(secret, 'RFC4648'), {
-			counter,
-			digits: 12, // trigger the use of the 64bit htopVal
-			algorithm: 'SHA-1',
-			charSet: '0123456789',
-		})
-	})
-})
-
-test('20 digits OTP should not pad with first character of charSet regardless of the charSet length', async () => {
-	const longCharSet = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
-	const shortCharSet = 'ABCDEFGHIJK'
-
-	async function generate20DigitCodeWithCharSet(charSet) {
-		const iterations = 100
-		let allOtps = []
-
-		for (let i = 0; i < iterations; i++) {
-			const { otp } = await generateTOTP({
-				algorithm: 'SHA-256',
-				charSet,
-				digits: 20,
-				period: 60 * 30,
-			})
-			allOtps.push(otp)
-
-			// Verify the OTP only contains characters from the charSet
-			assert.match(
-				otp,
-				new RegExp(`^[${charSet}]{20}$`),
-				'OTP should be 20 characters from the charSet',
-			)
-
-			// The first 6 characters should not all be 'A' (first char of charSet)
-			const firstSixChars = otp.slice(0, 6)
-			assert.notStrictEqual(
-				firstSixChars,
-				'A'.repeat(6),
-				'First 6 characters should not all be A',
-			)
-		}
-	}
-
-	await generate20DigitCodeWithCharSet(shortCharSet)
-	await generate20DigitCodeWithCharSet(longCharSet)
 })

@@ -99,13 +99,7 @@ const otpUri = getTOTPAuthUri({
 const code = await getCodeFromUser()
 
 // now verify the code:
-const isValid = await verifyTOTP({
-	otp: code,
-	secret,
-	period,
-	digits,
-	algorithm,
-})
+const isValid = await verifyTOTP({ otp: code, secret, period, digits, algorithm })
 
 // if it's valid, save the secret, period, digits, and algorithm to the database
 // along with who it belongs to and use this info to verify the user when they
