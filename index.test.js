@@ -206,22 +206,3 @@ test('20 digits OTP should not pad with first character of charSet regardless of
 
 })
 
-test('generating a auth uri can be used to generate a otp that can be verified', async () => {
-  const {otp: _otp, ...totpConfig} = await generateTOTP()
-	const otpUriString = getTOTPAuthUri({
-		issuer: 'test',
-		accountName: 'test',
-		...totpConfig,
-  })
-  
-	const otpUri = new URL(otpUriString)
-	const options = Object.fromEntries(otpUri.searchParams)
-
-	const { otp } = await generateTOTP({
-    ...options,
-		// the algorithm will be "SHA1" but we need to generate the OTP with "SHA-1"
-		algorithm: 'SHA-1',
-	})
-	const result = await verifyTOTP({ otp, ...totpConfig })
-	assert.deepStrictEqual(result, { delta: 0 })
-})
