@@ -60,7 +60,9 @@ async function generateHOTP(
   const offset = hashBytes[hashBytes.length - 1] & 0xf
   
   let hotpVal = 0n
-  if (digits === 6) {
+  // the original specification allows any amount of digits between 4 and 10,
+  // so stay on the 32bit number if the digits are less then or equal to 10.
+  if (digits <= 10) {
     // stay compatible with the authenticator apps and only use the bottom 32 bits of BigInt
     hotpVal = 0n |
     BigInt(hashBytes[offset] & 0x7f) << 24n |
@@ -168,8 +170,8 @@ export async function generateTOTP({
 	charSet = DEFAULT_CHAR_SET,
 } = {}) {
 	const otp = await generateHOTP(base32Decode(secret, 'RFC4648'), {
-		counter: getCounter(period),
-		digits,
+		counter: getCounter(Number(period)),
+		digits: Number(digits),
 		algorithm,
 		charSet,
 	})
