@@ -15,9 +15,6 @@ jobs:
   test:
     name: 🧪 Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [lts/-1, lts/*, latest]
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v5
