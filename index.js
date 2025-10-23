@@ -26,7 +26,7 @@ const DEFAULT_PERIOD = 30
  * Generates a HMAC-based One Time Password (HOTP) using the provided secret and
  * configuration options.
  *
- * @param {ArrayBuffer} secret - The secret used to generate the HOTP.
+ * @param {BufferSource} secret - The secret used to generate the HOTP.
  * @param {Object} options - The configuration options for the HOTP.
  * @param {number} [options.counter=0] - The counter value to use for the HOTP.
  * Defaults to 0.
@@ -104,7 +104,7 @@ async function generateHOTP(
  * configuration options.
  *
  * @param {string} otp - The OTP to verify.
- * @param {ArrayBuffer} secret - The secret used to generate the HOTP.
+ * @param {BufferSource} secret - The secret used to generate the HOTP.
  * @param {Object} options - The configuration options for the HOTP.
  * @param {number} [options.counter=0] - The counter value to use for the HOTP.
  * Defaults to 0.
@@ -256,7 +256,7 @@ export async function verifyTOTP({
 		return null
 	}
 
-	return verifyHOTP(otp, new Uint8Array(decodedSecret), {
+	return verifyHOTP(otp, decodedSecret, {
 		counter: getCounter(period),
 		digits,
 		window,
@@ -269,7 +269,7 @@ export async function verifyTOTP({
  * Converts a number to a byte array.
  *
  * @param {number} num The number to convert to a byte array.
- * @returns {Uint8Array} The byte array representation of the number.
+ * @returns {Uint8Array<ArrayBuffer>} The byte array representation of the number.
  */
 function intToBytes(num) {
 	const arr = new Uint8Array(8)
